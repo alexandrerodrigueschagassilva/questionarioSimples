@@ -1,0 +1,10 @@
+.center {
+margin-right: auto;
+margin-left: auto;
+width: 450px;
+}
+
+button {
+    margin-right: 5px;
+    margin-left: 5px;
+}

@@ -1,0 +1,33 @@
+
+<div style="padding-top:10%;position: relative;">
+    <mat-card class="center" >
+        <div >
+            <h1 style="text-align: center;">Questionário</h1>
+        </div>
+        <div style="text-align: center;">
+            <button mat-button mat-raised-button color="primary">
+                {{numeroQuestaoAtual + 1}} / {{numeroTotal}}
+            </button>
+        </div>
+        <div style="margin-left: auto;margin-right: auto;">
+            <div style="margin-top: 20px;">
+                <label for="nome" ><b><h3>{{numeroQuestaoAtual+1}}. {{questaoAtual.pergunta}}</h3></b></label>
+            </div>
+            <div>
+                <form [formGroup]="formQuestionario" >
+                    <div  class="form-check" *ngFor="let resposta of questaoAtual.respostas; index as ir">
+                        <p>
+                            <input name="numeroQuestaoAtual" type="radio" class="form-check-input" value="{{resposta}}" (click)="opcaoEscolhida($event, numeroQuestaoAtual, ir)">
+                            <label class="form-check-label" >{{resposta}}</label>
+                        </p>
+                    </div>
+                </form>
+            </div>
+            <div style="text-align: center;">
+                <button mat-button mat-raised-button *ngIf="numeroQuestaoAtual > 0" color="warn" (click)="decrementarQuestao(numeroQuestaoAtual)">Anteiror</button>
+                <button *ngIf="numeroQuestaoAtual < 24" [disabled]="btnAvancarDesabilitado"  mat-button mat-raised-button color="primary" (click)="incrementarQuestao(numeroQuestaoAtual)">Próxima</button>
+                <button *ngIf="numeroQuestaoAtual == 24" [disabled]="btnAvancarDesabilitado"  mat-button mat-raised-button (click)="mostrarResultado()">Resultado</button>
+            </div>
+        </div>
+    </mat-card>
+</div>
