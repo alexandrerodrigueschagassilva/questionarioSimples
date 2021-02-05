@@ -1,5 +1,5 @@
 
-<div style="padding-top:10%;position: relative;">
+<div style="padding-top:10%;position: relative;" *ngIf="!_mostrarResultado">
     <mat-card class="center" >
         <div >
             <h1 style="text-align: center;">Questionário</h1>
@@ -17,7 +17,7 @@
                 <form [formGroup]="formQuestionario" >
                     <div  class="form-check" *ngFor="let resposta of questaoAtual.respostas; index as ir">
                         <p>
-                            <input name="numeroQuestaoAtual" type="radio" class="form-check-input" value="{{resposta}}" (click)="opcaoEscolhida($event, numeroQuestaoAtual, ir)">
+                            <input name="numeroQuestaoAtual" type="radio" class="form-check-input" id="{{ir}}" value="{{resposta}}" (click)="opcaoEscolhida($event, numeroQuestaoAtual, ir)">
                             <label class="form-check-label" >{{resposta}}</label>
                         </p>
                     </div>
@@ -26,8 +26,35 @@
             <div style="text-align: center;">
                 <button mat-button mat-raised-button *ngIf="numeroQuestaoAtual > 0" color="warn" (click)="decrementarQuestao(numeroQuestaoAtual)">Anteiror</button>
                 <button *ngIf="numeroQuestaoAtual < 24" [disabled]="btnAvancarDesabilitado"  mat-button mat-raised-button color="primary" (click)="incrementarQuestao(numeroQuestaoAtual)">Próxima</button>
-                <button *ngIf="numeroQuestaoAtual == 24" [disabled]="btnAvancarDesabilitado"  mat-button mat-raised-button (click)="mostrarResultado()">Resultado</button>
+                <button *ngIf="numeroQuestaoAtual == 24" [disabled]="btnAvancarDesabilitado"  mat-button mat-raised-button (click)="alternarResultado(true)">Resultado</button>
             </div>
         </div>
+    </mat-card>
+</div>
+
+<div style="padding-bottom:10%; padding-top:10%;position: relative;"  *ngIf="_mostrarResultado">
+    <mat-card class="center-large" >
+            <div>
+                <div class="chart">
+                <canvas baseChart
+                    [data]="pieChartData"
+                    [labels]="pieChartLabels"
+                    [chartType]="pieChartType"
+                    [options]="pieChartOptions"
+                    [plugins]="pieChartPlugin"
+                    >
+                </canvas>
+                </div>
+            </div>
+            <div style="width: 100%;">
+                <div style="display: block">
+                    <canvas baseChart
+                      [datasets]="radarChartData"
+                      [options]="radarChartOptions"
+                      [labels]="radarChartLabels"
+                      [chartType]="radarChartType">
+                    </canvas>
+                  </div>
+            </div>
     </mat-card>
 </div>

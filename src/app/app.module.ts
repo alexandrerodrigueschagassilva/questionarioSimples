@@ -13,7 +13,9 @@ import {MatInputModule} from '@angular/material/input';
 import {MatStepperModule} from '@angular/material/stepper';
 import {MatButtonModule} from '@angular/material/button';
 import {MatRadioModule} from '@angular/material/radio';
-import {MatCardModule} from '@angular/material/card'
+import {MatCardModule} from '@angular/material/card';
+import { ChartsModule } from 'ng2-charts';
+import 'chartjs-plugin-labels';
 @NgModule({
   declarations: [
     AppComponent,
@@ -30,7 +32,8 @@ import {MatCardModule} from '@angular/material/card'
     MatInputModule,
     MatButtonModule,
     MatRadioModule,
-    MatCardModule
+    MatCardModule,
+    ChartsModule
   ],
   providers: [
     FormBuilder

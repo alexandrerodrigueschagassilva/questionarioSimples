@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
+import { ChartDataSets, ChartType, RadialChartOptions } from 'chart.js';
+import { Label } from 'ng2-charts';
+import { Questionario } from './questionario.interface'
+
 
 @Component({
   selector: 'app-questionario',
@@ -8,18 +12,37 @@ import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms'
 })
 export class QuestionarioComponent implements OnInit {
   formQuestionario: FormGroup | undefined;
-  questoes: any[];
-  texto = 'Você terminou!';
+  questoes: Questionario[];
   isEditable = true;
   questaoAtual;
   numeroQuestaoAtual = 0;
   btnAvancarDesabilitado = true;
   numeroTotal;
-  resultado = {
+
+  public _mostrarResultado = false;
+  public get mostrarResultado() {
+    return this._mostrarResultado;
+  }
+  public set mostrarResultado(value) {
+    this._mostrarResultado = value;
+  }
+
+  public alternarResultado(): void {
+    this.mostrarResultado ? this.mostrarResultado = false: this.mostrarResultado = true;
+  }
+
+  public resultadoPerfilComportamental = {
     lobo: 0,
     aguia: 0,
     tubarao: 0,
     gato: 0
+  }
+
+  public resultadoPreferenciaCerebral = {
+    esquerdo: 0,
+    posterior: 0,
+    direito: 0,
+    anterior: 0
   }
 
   constructor(private _formBuilder: FormBuilder) {
@@ -148,7 +171,7 @@ export class QuestionarioComponent implements OnInit {
       {
         pergunta: 'Minha filosofia de vida é...', 
         respostas: [
-          'Há ganhadores e perdedores, e eu acredito ser um ganahdor',
+          'Há vencedores e perdedores, e eu acredito ser um vencedor',
           'Para eu ganhar ninguém precisa perder',
           'Para ganhar é preciso seguir as regras',
           'Para ganhar é necessário inventar novas regras'
@@ -301,21 +324,136 @@ export class QuestionarioComponent implements OnInit {
   decrementarQuestao(valor) {
     this.numeroQuestaoAtual = valor - 1;
     this.questaoAtual = this.questoes[this.numeroQuestaoAtual];
+
+    let resposta = this.questoes[this.numeroQuestaoAtual].resposta;
+    let indicaResposta = this.questoes[this.numeroQuestaoAtual].escolha.indexOf(resposta);
+
+    setTimeout(() => {
+      document.getElementById(indicaResposta.toString()).click();
+    }, 100);
   }
 
   opcaoEscolhida(evento, numeroDaQuestao, escolha) {
 
     this.btnAvancarDesabilitado = false;
     this.questoes[numeroDaQuestao].resposta = this.questoes[numeroDaQuestao].escolha[escolha];
-    this.resultado['lobo'] = this.questoes.filter((el) => {return el.resposta == 'O'}).length;
-    this.resultado['aguia'] = this.questoes.filter((el) => {return el.resposta == 'I'}).length;
-    this.resultado['tubarao'] = this.questoes.filter((el) => {return el.resposta == 'A'}).length;
-    this.resultado['gato'] = this.questoes.filter((el) => {return el.resposta == 'C'}).length;
+    this.resultadoPerfilComportamental['lobo'] = this.questoes.filter((el) => {return el.resposta == 'O'}).length;
+    this.resultadoPerfilComportamental['aguia'] = this.questoes.filter((el) => {return el.resposta == 'I'}).length;
+    this.resultadoPerfilComportamental['tubarao'] = this.questoes.filter((el) => {return el.resposta == 'A'}).length;
+    this.resultadoPerfilComportamental['gato'] = this.questoes.filter((el) => {return el.resposta == 'C'}).length;
+
+    this.resultadoPreferenciaCerebral['esquerdo'] = this.questoes.filter((el) => {return el.resposta == 'O' || el.resposta == 'A'}).length;
+    this.resultadoPreferenciaCerebral['posterior'] = this.questoes.filter((el) => {return el.resposta == 'C' || el.resposta == 'A'}).length;
+    this.resultadoPreferenciaCerebral['direito'] = this.questoes.filter((el) => {return el.resposta == 'I' || el.resposta == 'C'}).length;
+    this.resultadoPreferenciaCerebral['anterior'] = this.questoes.filter((el) => {return el.resposta == 'O' || el.resposta == 'I'}).length;
+
+    this.atualizarGraficos();
 
   }
 
-  mostrarResultado() {
+  //gráfico
+  public pieChartLabels = ['Aguia', 'Gato', 'Tubarão', 'Lobo'];
+
+  public pieChartData = [0, 0, 0, 0];
+  public radarChartData: ChartDataSets[] = [
+    { data: [0, 0, 0, 1], label: 'Preferência cerebral' },
+  ];
+
+  pieChartOptions = {
+    lengend: {
+      position: 'bottom',
+      align: 'center'
+    },
+    plugins: {
+      labels: {
+        render: 'percent',
+        precision: 0,
+        showZero: true,
+        fontSize: 12,
+        fontColor: '#000',
+      }
+    },
+    title: {
+      display: true,
+      position: 'top',
+      fontFamily: 'sans-serif',
+      fontColor: '#666',
+      fontSize: 24,
+      text: 'Perfil comportamental'
+    },
+    animation: {
+      duration : 0
+    }
+  }
+
+  public pieChartType = 'pie';
+
+  public pieChartPlugin = {
+    labels: {
+      render: 'value',
+      fontSize: 14,
+      fontStyle: 'bold',
+      fontColor: '#000',
+      fontFamily: '"Lucida Console", Monaco, monospace'
+    }
+  }
+
+  atualizarGraficos() {
+    this.pieChartData = [
+      this.resultadoPerfilComportamental.aguia,
+      this.resultadoPerfilComportamental.gato,
+      this.resultadoPerfilComportamental.lobo,
+      this.resultadoPerfilComportamental.tubarao
+    ];
+
+    this.radarChartData = [
+      { data: 
+        [
+          this.resultadoPreferenciaCerebral.anterior,
+          this.resultadoPreferenciaCerebral.direito,
+          this.resultadoPreferenciaCerebral.posterior,
+          this.resultadoPreferenciaCerebral.esquerdo
+        ],
+        label: 'Preferência cerebral',  
+      }
+    ];
+    console.log(this.radarChartData[0].data)
     
   }
 
+  public radarChartOptions: RadialChartOptions = {
+    responsive: true,
+    scales : {
+      yAxes: 
+      [
+        {
+          display: false,
+          ticks: {
+            beginAtZero: true,
+            autoSkip: false,
+            min: 0
+          },
+          gridLines: {
+            display: false
+          }
+        }
+      ]
+    }
+  };
+  public radarChartLabels: Label[] = ['anterior', 'direito', 'posterior', 'esquerdo'];
+
+  public radarChartType: ChartType = 'radar';
+
+  // events
+  public chartClicked({ event, active }: { event: MouseEvent, active: {}[] }): void {
+    console.log(event, active);
+  }
+
+  public chartHovered({ event, active }: { event: MouseEvent, active: {}[] }): void {
+    console.log(event, active);
+  }
 }
+function rgb(arg0: number, arg1: number, arg2: number): import("chart.js").ChartColor {
+  throw new Error('Function not implemented.');
+}
+
